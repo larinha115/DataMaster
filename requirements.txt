@@ -1,0 +1,11 @@
+# Versões mínimas compatíveis com o ambiente de teste; congele com pip freeze para produção.
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+pydantic>=2.8,<3
+google-genai>=2.20,<3
+pandas>=2.2,<3
+openpyxl>=3.1,<4
+Pillow>=11,<13
+python-dotenv>=1.0,<2
+httpx>=0.27,<1
+pytest>=8,<10

@@ -1,0 +1,24 @@
+CYBER RISK ASSESSMENT — VERSÃO 3.0 / QUATRO CRITÉRIOS
+
+1) Extraia o ZIP inteiro e mantenha static/, data/, benchmark/ e os arquivos .py.
+2) Preserve seu .env e sua planilha privada fora do pacote antes de atualizar.
+3) Execute INICIAR_WINDOWS.bat e acesse http://127.0.0.1:8000/.
+4) Em Demonstração, escolha um dos 5 cenários e clique em Exibir parecer ilustrativo.
+   NÃO há chamada Gemini, consumo de quota ou avaliação real.
+5) Em Análise real, selecione o controle e anexe uma evidência PNG/JPG.
+   A API exige GOOGLE_API_KEY válida e quota disponível.
+
+O parecer agora tem quatro critérios independentes:
+- DESENHO: ADEQUADO, PARCIAL, INADEQUADO, INSUFICIENTE.
+- IMPLEMENTAÇÃO: IMPLEMENTADO, PARCIAL, NÃO DEMONSTRADO.
+- EFETIVIDADE: EFETIVO, PARCIAL, INEFETIVO, NÃO CONCLUSIVO.
+- MATURIDADE: Tier indicativo 1 Partial, 2 Risk-Informed, 3 Repeatable,
+  4 Adaptive ou NÃO DETERMINADO se faltar prova.
+
+IMPORTANTE: Os Tiers oficiais NIST CSF 2.0 descrevem governança e gestão
+organizacional, não uma nota oficial para cada controle. O campo é indicativo.
+O benchmark anterior de notas 1/5 NÃO equivale aos Tiers 1–4 e foi arquivado.
+Consulte docs/CRITERIOS_4D.md e docs/AVALIACAO.md.
+
+Ao editar static/app.js, execute python scripts/build_frontend.py para
+atualizar o JavaScript embutido em index.html.

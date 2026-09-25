@@ -1,0 +1,39 @@
+CYBER RISK ASSESSMENT — COMO CARREGAR OS CONTROLES
+
+IMPORTANTE: nao abra o index.html com dois cliques para usar a IA.
+O HTML sozinho mostra apenas 10 controles ficticios em PREVIA OFFLINE.
+
+WINDOWS — PARA CARREGAR SUA PLANILHA COMPLETA:
+1. Extraia este ZIP inteiro (nao execute os arquivos dentro do ZIP).
+2. Copie SBK_Framework_NIST.xlsx para a pasta DATA_MASTER_Cyber_Risk_AI,
+   ao lado de api3.py (somente no seu computador/autorizado).
+3. Dê dois cliques em USAR_MINHA_PLANILHA.bat.
+4. Dê dois cliques em INICIAR_WINDOWS.bat e mantenha a janela aberta.
+5. Abra http://127.0.0.1:8000/ no navegador.
+6. Confira http://127.0.0.1:8000/health: controles_carregados = 98.
+
+SEM SUA PLANILHA: o servidor mostra 10 controles ficticios de demonstracao.
+SEM GOOGLE_API_KEY: voce podera consultar controles, mas nao analisar evidencias.
+Para analisar, abra .env, defina GOOGLE_API_KEY e reinicie a API.
+
+SE A TELA MOSTRAR PREVIA OFFLINE:
+- Confira que abriu o endereco HTTP acima, nao file:///...
+- Se estiver no endereco correto, clique em Tentar conectar à API novamente.
+- Se nao carregar, abra /health para ler o diagnostico.
+
+Use apenas imagens e dados ficticios ou autorizados.
+
+ATENCAO SOBRE A COLUNA CONTROLES
+--------------------------------
+O importador reconhece tanto CONTROLES quanto Sub-categoria para o ID/nome,
+e Definição de controles ou Requisito da Política para o texto do requisito.
+USAR_MINHA_PLANILHA.bat verifica a coluna usada e exibe a quantidade carregada.
+O aviso PRÉVIA SEM API indica que o HTML foi aberto diretamente, independentemente
+do nome da coluna. Use INICIAR_WINDOWS.bat e abra http://127.0.0.1:8000/.
+
+SE A IMAGEM APARECER, MAS NAO GERAR PARECER:
+1. Execute VERIFICAR_CONFIGURACAO.bat.
+2. Verifique se .env possui GOOGLE_API_KEY preenchida com sua chave.
+3. Reinicie INICIAR_WINDOWS.bat e acesse http://127.0.0.1:8000/
+4. Se houver erro apos clicar em Analisar Evidencia, leia o aviso logo abaixo do arquivo.
+A chave nunca deve ser enviada no chat ou colocada no HTML.

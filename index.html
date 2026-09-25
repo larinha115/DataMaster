@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyber Risk Assessment</title>
+<style>
+:root{
+  --red:#c90018; --red-dark:#a90015; --navy:#12233b; --blue:#1769e0;
+  --bg:#f3f6fa; --card:#fff; --line:#dfe6ee; --muted:#64748b;
+  --green:#159b62; --green-bg:#edf9f3; --amber:#c47a08; --amber-bg:#fff7e8;
+  --blue-bg:#eef6ff; --shadow:0 6px 22px rgba(22,39,65,.07);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,"Segoe UI",Arial,sans-serif;background:var(--bg);color:#162238}
+.topbar{height:76px;background:linear-gradient(90deg,#d00820,#b70018);color:#fff;display:flex;align-items:center;padding:0 34px;box-shadow:0 2px 10px rgba(100,0,0,.15)}
+.brand{display:flex;gap:14px;align-items:center}.brand-icon{font-size:34px}.brand h1{font-size:24px;margin:0}.brand p{margin:2px 0 0;font-size:13px;opacity:.92}
+.top-actions{margin-left:auto;display:flex;gap:28px;align-items:center;font-size:13px}.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#e78691;font-weight:700}
+.steps{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;justify-content:center;align-items:center;gap:0}
+.step{display:flex;align-items:center;min-width:220px;color:#526176;font-size:13px;position:relative}
+.step:not(:last-child)::after{content:"";height:2px;background:#d6dee8;width:78px;margin:0 18px}
+.step-num{width:38px;height:38px;border-radius:50%;background:#eaf0f6;display:grid;place-items:center;margin-right:12px;font-weight:700}
+.step.active{color:#172238;font-weight:700}.step.active .step-num{background:var(--red);color:#fff}.step.done .step-num{background:#ffdce0;color:var(--red)}
+.step.active::before{content:"";position:absolute;left:0;bottom:-17px;width:178px;height:3px;background:var(--red);border-radius:3px}
+.app{max-width:1540px;margin:20px auto;padding:0 20px;display:grid;grid-template-columns:minmax(480px,.95fr) minmax(600px,1.05fr);gap:18px}
+.panel{background:#fff;border:1px solid #e1e7ee;border-radius:10px;box-shadow:var(--shadow);padding:22px;margin-bottom:14px}
+.panel-title{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.panel-title .ico{color:var(--red);font-size:20px}
+label{display:block;font-size:12px;font-weight:800;text-transform:uppercase;color:#34445a;margin:13px 0 7px}
+select,textarea{width:100%;border:1px solid #ccd7e3;border-radius:7px;padding:12px 14px;font:inherit;color:#1e2c41;background:#fff}
+textarea{min-height:145px;resize:vertical;line-height:1.5}
+.hint{font-size:11px;color:#708095;margin-top:6px}.hint.ok{color:var(--green)}.hint.erro{color:var(--red)}
+.upload-area{border:2px dashed #9fb3c8;border-radius:9px;min-height:155px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;transition:.2s;background:#fbfdff;padding:18px}
+.upload-area{text-transform:none}
+.upload-area:hover,.upload-area.dragging{border-color:var(--red);background:#fff8f9}.upload-icon{font-size:34px;color:#405975}.upload-main{font-size:16px;font-weight:750;margin-top:8px}.upload-sub{font-size:12px;color:var(--muted);margin-top:7px}
+#preview-img{display:none;max-width:100%;max-height:120px;margin-top:12px;border-radius:5px}
+.file-chip{display:none;align-items:center;gap:12px;background:#f2f6fa;border:1px solid #e1e8ef;border-radius:8px;padding:10px 12px;margin-top:12px}
+.file-thumb{width:58px;height:42px;object-fit:cover;border:1px solid #ccd7e3;border-radius:4px}.file-meta{flex:1}.file-name{font-size:13px;font-weight:700}.file-size{font-size:11px;color:var(--muted);margin-top:3px}.remove{border:0;background:transparent;color:#40516a;font-size:20px;cursor:pointer;width:auto;padding:5px}
+.primary{width:100%;border:0;border-radius:7px;background:linear-gradient(90deg,#d20720,#c1001a);color:#fff;font-size:15px;font-weight:800;padding:15px;cursor:pointer;margin-top:14px}.primary:hover{background:var(--red-dark)}.primary:disabled{background:#9ba8b8}
+#erro-geral{display:none;background:#fff0f1;color:#a30015;border:1px solid #ffc7ce;padding:11px;border-radius:7px;margin:10px 0}
+.result-head{display:flex;justify-content:space-between;align-items:center}.result-time{font-size:11px;color:var(--muted);font-weight:500}
+#loading{display:none;padding:65px 25px;text-align:center;color:#5e6d81}.loader{width:42px;height:42px;border:4px solid #e4eaf1;border-top-color:var(--red);border-radius:50%;margin:0 auto 16px;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+#resultado-ia{display:none}
+.summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}.summary-card{border-radius:9px;padding:16px;border:1px solid #dfe8e4;min-height:100px;display:flex;align-items:center;gap:12px}.summary-card.green{background:var(--green-bg)}.summary-card.blue{background:var(--blue-bg);border-color:#d9e9ff}.summary-icon{font-size:29px}.summary-label{font-size:11px}.summary-value{font-size:22px;font-weight:850;margin-top:3px}.summary-sub{font-size:11px;color:#4f6076;margin-top:3px}
+.maturity{border:1px solid var(--line);border-radius:9px;padding:17px;margin-bottom:14px}.maturity-top{display:flex;justify-content:space-between;gap:15px;align-items:center}.maturity-top strong{font-size:16px}.maturity-top span{font-size:11px;color:var(--muted)}
+.scale{display:flex;justify-content:space-between;position:relative;margin:28px 28px 6px}.scale::before{content:"";position:absolute;left:22px;right:22px;top:18px;height:3px;background:#d7e0ea}.maturity-item{position:relative;z-index:1;text-align:center;width:23%;font-size:10px;color:#526176}.maturity-node{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#e7edf4;margin:0 auto 8px;font-weight:800;font-size:14px}.maturity-node.passed{background:#d9e9ff;color:#1769e0}.maturity-node.active{background:#1769e0;color:#fff;box-shadow:0 0 0 5px #e7f1ff}.maturity-item:has(.active){color:#0b55bd;font-weight:800}
+.result-box{border-radius:9px;padding:16px 18px;margin-bottom:12px;border:1px solid transparent}.result-box strong{display:block;margin-bottom:8px;font-size:14px}.result-box p,.result-box ul{font-size:13px;line-height:1.55;margin:0}.result-box.green{background:var(--green-bg);border-color:#dcefe5}.result-box.amber{background:var(--amber-bg);border-color:#f4e5c8}.result-box.blue{background:var(--blue-bg);border-color:#dcecff}
+.json-toggle{display:flex;justify-content:space-between;align-items:center;width:100%;border:1px solid var(--line);background:#f3f6f9;padding:13px 16px;border-radius:8px;cursor:pointer;font-weight:700;color:#26364d}.json-raw{display:none;background:#142238;color:#b9f27c;padding:15px;border-radius:0 0 8px 8px;font-family:Consolas,monospace;font-size:12px;white-space:pre-wrap;overflow:auto;max-height:300px}
+#badge-status,#badge-nivel{display:none}
+@media(max-width:1050px){.app{grid-template-columns:1fr}.steps{overflow-x:auto;justify-content:flex-start;padding-left:20px}.step{min-width:190px}.top-actions{display:none}}
+@media(max-width:650px){.summary{grid-template-columns:1fr}.app{padding:0 10px}.topbar{padding:0 18px}.brand h1{font-size:19px}.scale{margin-left:0;margin-right:0}.maturity-item{font-size:9px}}
+
+.mode-switch{display:flex;gap:4px;padding:4px;border:1px solid #ffffff80;background:#ffffff25;border-radius:10px;margin-left:28px}
+.mode-btn{border:0;background:transparent;color:white;padding:10px 13px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:750;white-space:nowrap}
+.mode-btn[aria-pressed="true"]{background:white;color:#aa0019;box-shadow:0 2px 10px #65000d33}
+.mode-btn:focus-visible{outline:3px solid white;outline-offset:2px}
+.demo-alert{max-width:1500px;margin:16px auto 0;border:1px solid #e5c878;color:#785013;background:#fff6df;border-radius:9px;padding:12px 16px;font-size:12px;line-height:1.55;font-weight:600}
+.demo-alert[hidden], .demo-field[hidden], .result-origin[hidden]{display:none}
+.demo-field{border-radius:9px;border:1px solid #efdaac;background:#fff9e9;padding:12px 14px;margin-bottom:18px}
+.demo-field .demo-hint{margin:7px 0 2px;color:#76541b;font-size:11px;line-height:1.45}
+.demo-field select{border-color:#d6be91;background:#fff}
+.result-origin{border-radius:7px;background:#fff2d5;color:#75500f;border:1px solid #e6bf66;padding:11px 13px;font-size:12px;font-weight:750;line-height:1.55;margin-bottom:14px}
+.upload-area.demo-locked{cursor:default;border-color:#aabed7;background:#f1f6fc}
+@media(max-width:1200px){.topbar{height:auto;flex-wrap:wrap;padding:12px 20px;gap:10px}.mode-switch{margin-left:auto}.top-actions{margin-left:0}}
+@media(max-width:690px){.mode-switch{width:100%;margin-left:0}.mode-btn{flex:1}.brand h1{font-size:19px}}
+.top-actions a,.about-trigger{color:white;text-decoration:none;font:inherit;border:0;background:transparent;cursor:pointer}
+.top-actions a:hover,.about-trigger:hover{text-decoration:underline}
+.catalog-banner{font-size:11px;padding:9px 12px;border-radius:6px;background:#ecf5ff;color:#245283;margin-top:10px}
+.catalog-warning{background:#fff6e1;color:#80520a;border:1px solid #f4d995;font-weight:600;line-height:1.55}
+.retry-controls{width:auto;margin-top:8px;padding:8px 12px;background:#29476e;color:white;border:0;border-radius:5px;cursor:pointer;font-size:12px}
+.retry-controls[hidden],.server-link[hidden]{display:none}
+.server-link{display:inline-block;margin-top:8px;margin-left:8px;padding:8px 12px;
+  background:#f3faf5;color:#17643e;border:1px solid #a7d9b9;border-radius:5px;
+  font-weight:700;font-size:12px;text-decoration:none}
+.server-link:hover{text-decoration:underline}
+.note{margin-top:13px;line-height:1.5}
+textarea[readonly]{background:#f8fafc;color:#28384e}
+.empty-state{min-height:550px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#60718a;padding:36px;gap:12px}
+.empty-state strong{font-size:19px;color:#26364d}.empty-state p{max-width:390px;line-height:1.6;font-size:13px}.empty-icon{font-size:60px;color:#c8122d}
+.review-alert{padding:10px 14px;margin-bottom:13px;border-radius:6px;background:#fff8e8;color:#8e5702;font-size:12px;border:1px solid #f3dfaf}
+.result-box.neutral{background:#f8fafc;border-color:#dfe7ed}
+.result-box ul{padding-left:18px}.result-box li{margin:3px 0}
+.trace-info{font-size:11px;color:#63758d;margin-bottom:12px}
+.about-dialog{max-width:510px;border:1px solid #d8e3ee;border-radius:12px;box-shadow:0 10px 50px #1d2b4033;padding:25px;line-height:1.6}
+.about-dialog::backdrop{background:#07182c99}
+#resultado-ia .summary-card{min-width:0}
+@media(max-width:650px){.topbar{height:auto;padding:12px 18px}.summary-value{font-size:18px}.step:not(:last-child)::after{width:10px;margin:0 6px}}
+.confidence-strip{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#f6f8fb;border:1px solid var(--line);border-radius:8px;padding:11px 15px;margin-bottom:14px;font-size:12px;color:#516077}.confidence-strip strong{font-size:14px;color:#203451}
+.tier-caveat{font-size:11px;color:#62728a;line-height:1.5;margin:10px 0 0}
+.criterion-reasons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 15px}.criterion-reason{border:1px solid var(--line);background:#f8fafc;border-radius:8px;padding:13px}.criterion-reason strong{font-size:12px;color:#263b57}.criterion-reason p{font-size:12px;line-height:1.5;margin:7px 0 0;color:#4b5b70}.summary-value{overflow-wrap:anywhere;font-size:19px}
+@media(max-width:650px){.criterion-reasons{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><div class="brand-icon">◈</div><div><h1>Cyber Risk Assessment</h1><p>Análise de controles, evidências e emissão de parecer</p></div></div>
+  <div class="mode-switch" role="group" aria-label="Modo de execução"><button type="button" class="mode-btn" id="mode-real" aria-pressed="true">◉ Análise real</button><button type="button" class="mode-btn" id="mode-demo" aria-pressed="false">▣ Demonstração</button></div>
+  <div class="top-actions"><a href="/docs" target="_blank" rel="noopener noreferrer">▣ &nbsp; Documentação da API</a><button type="button" class="about-trigger" id="about-btn">⚙ &nbsp; Sobre o projeto</button><span class="avatar">AI</span></div>
+</header>
+
+<nav class="steps">
+  <div class="step active"><div class="step-num">01</div><span>Selecionar Controle</span></div>
+  <div class="step"><div class="step-num">02</div><span>Adicionar Evidência</span></div>
+  <div class="step"><div class="step-num">03</div><span id="step-3-label">Análise pela IA</span></div>
+  <div class="step"><div class="step-num">04</div><span>Parecer Técnico</span></div>
+</nav>
+
+<div class="demo-alert" id="demo-alert" role="status" hidden>DEMONSTRAÇÃO • Cenários fictícios pré-cadastrados. Os pareceres são ILUSTRATIVOS e não foram produzidos agora pela IA; nenhuma quota Gemini é consumida. Esta demonstração NÃO substitui validação humana ou benchmark.</div>
+<main class="app">
+<section>
+  <div class="panel">
+    <div class="panel-title"><span class="ico">▣</span>1. Parâmetros do Controle</div>
+    <div class="demo-field" id="demo-field" hidden>
+      <label for="demo-case-select">Escolha um cenário de apresentação</label>
+      <select id="demo-case-select"><option value="">Carregando cenários…</option></select>
+      <div class="demo-hint">A imagem e o parecer deste cenário já estão preparados. Não é possível avaliar outros arquivos neste modo.</div>
+    </div>
+    <label for="controle_id">ID do Controle (NIST)</label>
+    <select id="controle_id"><option value="">Carregando controles da planilha...</option></select>
+    <div class="hint" id="hint-controle" role="status"></div><div id="catalog-banner" class="catalog-banner" role="status" hidden></div>
+    <button type="button" id="retry-controls" class="retry-controls" hidden>↻ Tentar conectar à API novamente</button>
+    <a id="server-link" class="server-link" href="http://127.0.0.1:8000/" target="_blank" rel="noopener noreferrer" hidden>↗ Abrir aplicação pelo servidor</a>
+
+    <label>Requisito da Política (Regra de Negócio)</label>
+    <textarea id="politica" readonly aria-label="Requisito oficial da política" placeholder="Selecione um controle para carregar o requisito."></textarea><div id="req-hint" class="hint">Texto oficial recuperado no servidor pelo ID; não pode ser alterado nesta tela.</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title" style="justify-content:space-between"><span><span class="ico">⌕</span>&nbsp; 2. Evidência</span><small style="font-size:10px;color:#64748b;font-weight:500">Formatos: JPG, PNG • até 8 MB</small></div>
+    <label id="upload-area" class="upload-area" for="input-imagem">
+      <div class="upload-icon">☁</div>
+      <div class="upload-main">Arraste e solte a evidência aqui</div>
+      <div class="upload-sub">ou clique para selecionar um arquivo • use apenas dados fictícios ou autorizados</div>
+      <input type="file" id="input-imagem" accept="image/png,image/jpeg" style="display:none">
+      <img id="preview-img" alt="Pré-visualização da Evidência">
+    </label>
+    <div id="file-chip" class="file-chip">
+      <img id="file-thumb" class="file-thumb" alt="" src="" onerror="this.style.display='none'">
+      <div class="file-meta"><div id="file-name" class="file-name"></div><div id="file-size" class="file-size"></div></div>
+      <button class="remove" type="button" id="remove-btn" aria-label="Remover imagem anexada">×</button>
+    </div>
+    <div id="erro-geral" role="alert"></div>
+    <button id="btn-analisar" type="button" class="primary" disabled>✦ &nbsp; Analisar Evidência</button><div class="hint note">Quatro critérios independentes; o Tier é apenas indicativo e o parecer exige validação humana.</div>
+  </div>
+</section>
+
+<section>
+  <div class="panel" style="min-height:710px">
+    <div class="panel-title result-head"><span><span class="ico">▥</span>&nbsp; <span id="right-title-label">Parecer da Análise</span></span><span id="analysis-time" class="result-time">Aguardando análise</span></div>
+
+    <div id="loading" role="status"><div class="loader"></div><strong id="loading-label">Analisando evidência...</strong><div style="font-size:12px;margin-top:8px">Confrontando a evidência visual com o requisito oficial do controle.</div></div><div id="empty-state" class="empty-state"><span class="empty-icon">◈</span><strong>Seu parecer aparecerá aqui</strong><p id="empty-subtitle">Selecione um controle, anexe uma imagem e inicie a análise. O resultado da IA deverá ser validado por uma pessoa responsável.</p></div>
+
+    <div id="resultado-ia">
+      <div id="result-origin" class="result-origin" role="status" hidden>RESULTADO ILUSTRATIVO PRÉ-CADASTRADO — SEM INFERÊNCIA AO VIVO E SEM USO DA API GEMINI.</div><div id="review-alert" class="review-alert" role="note"></div><div class="badges-topo" style="display:none"><span id="badge-status"></span><span id="badge-nivel"></span></div>
+
+      <div class="summary" aria-label="Quatro critérios independentes de avaliação">
+        <div class="summary-card blue"><div class="summary-icon">▤</div><div><div class="summary-label">01 · Desenho</div><div class="summary-value" id="summary-design">—</div><div class="summary-sub">Concepção do controle</div></div></div>
+        <div class="summary-card blue"><div class="summary-icon">◈</div><div><div class="summary-label">02 · Implementação</div><div class="summary-value" id="summary-implementation">—</div><div class="summary-sub">Aplicação prática</div></div></div>
+        <div class="summary-card green"><div class="summary-icon">✓</div><div><div class="summary-label">03 · Efetividade</div><div class="summary-value" id="summary-status">—</div><div class="summary-sub">Funcionamento sustentado</div></div></div>
+        <div class="summary-card blue"><div class="summary-icon">▥</div><div><div class="summary-label">04 · Maturidade (Tier indicativo)</div><div class="summary-value" id="summary-level">—</div><div class="summary-sub" id="summary-level-name"></div></div></div>
+      </div>
+      <div class="confidence-strip"><span id="confidence-label">Confiança qualitativa (IA)</span><strong id="summary-confidence">—</strong></div>
+
+      <div id="campo-nivel-maturidade" class="maturity">
+        <div class="maturity-top"><strong>Referência: NIST CSF 2.0 Implementation Tiers</strong></div>
+        <p class="tier-caveat">Tier indicativo baseado no material apresentado. Os Tiers oficiais caracterizam práticas organizacionais; um controle isolado não define o Tier da organização.</p>
+        <div class="scale">
+          <div class="maturity-item"><div class="maturity-node">1</div>Partial</div>
+          <div class="maturity-item"><div class="maturity-node">2</div>Risk-Informed</div>
+          <div class="maturity-item"><div class="maturity-node">3</div>Repeatable</div>
+          <div class="maturity-item"><div class="maturity-node">4</div>Adaptive</div>
+        </div>
+      </div>
+      <div class="criterion-reasons">
+        <div class="criterion-reason"><strong>Desenho · Fundamentação</strong><p id="reason-design"></p></div>
+        <div class="criterion-reason"><strong>Implementação · Fundamentação</strong><p id="reason-implementation"></p></div>
+        <div class="criterion-reason"><strong>Efetividade · Fundamentação</strong><p id="reason-effectiveness"></p></div>
+        <div class="criterion-reason"><strong>Maturidade · Fundamentação</strong><p id="reason-tier"></p></div>
+      </div>
+
+      <div class="result-box green"><strong>▤ &nbsp; Justificativa Técnica</strong><p id="txt-justificativa"></p></div><div class="result-box neutral"><strong>◉ &nbsp; Achados observáveis na evidência</strong><ul id="lista-achados"></ul></div>
+      <div class="result-box amber"><strong>⚠ &nbsp; Desvios Identificados</strong><ul id="lista-desvios" style="padding-left:20px"></ul></div>
+      <div class="result-box neutral"><strong>ⓘ &nbsp; Limitações da evidência</strong><ul id="lista-limitacoes"></ul></div><div class="result-box blue"><strong>◈ &nbsp; Parecer Preliminar</strong><p id="txt-parecer"></p></div><div id="trace-info" class="trace-info"></div>
+
+      <button type="button" class="json-toggle" id="json-toggle" aria-expanded="false"><span id="json-label">&lt;/&gt; &nbsp; Ver resposta estruturada da IA (JSON)</span><span id="json-arrow">⌄</span></button>
+      <div class="json-raw" id="json-bruto"></div>
+    </div>
+  </div>
+</section>
+</main>
+<dialog id="about-dialog" class="about-dialog">
+  <h2>Sobre o Cyber Risk Assessment</h2>
+  <p>Protótipo DATA MASTER: quatro avaliações independentes (desenho, implementação, efetividade e Tier indicativo), requisito recuperado no servidor e parecer preliminar sujeito a revisão humana. Os Tiers NIST caracterizam governança organizacional; a avaliação deste controle não classifica oficialmente a organização.</p>
+  <p>O modo Demonstração exibe cinco cenários sintéticos e pareceres ilustrativos pré-cadastrados, sem chamar a IA. Na Análise real, a integração com Gemini envia o conteúdo ao provedor; o sistema não grava as imagens recebidas. Não use evidências pessoais, sigilosas ou reais sem autorização.</p>
+  <button type="button" class="primary" id="about-close">Entendi</button>
+</dialog>
+
+<!-- O arquivo distribuído contém o JS embutido; a versão-fonte fica em static/app.js. -->
+<!-- BEGIN GENERATED OFFLINE APP -->
+<script id="offline-catalog" type="application/json">
+[
+  {"codigo":"PR.IP-4","nome":"Backups de informações","descricao":"Executar, proteger e testar periodicamente backups conforme criticidade, incluindo recuperação documentada e acompanhamento de falhas. Texto sintético para demonstração; substitua pela definição oficial da planilha no ambiente privado."},
+  {"codigo":"PR.AT-3","nome":"Papéis e responsabilidades de terceiros","descricao":"Comunicar responsabilidades de segurança a fornecedores, comprovar aceite, treinamento e acompanhamento de acessos e obrigações contratuais. Texto sintético de demonstração."},
+  {"codigo":"PR.DS-4","nome":"Capacidade para garantir disponibilidade","descricao":"Monitorar, planejar e prover capacidade suficiente para manter a disponibilidade de sistemas e serviços críticos. Texto sintético de demonstração."},
+  {"codigo":"PR.IP-7","nome":"Melhoria contínua dos processos de proteção","descricao":"Acompanhar e melhorar controles de proteção com base em auditorias, eventos, métricas, lições aprendidas e planos de ação. Texto sintético de demonstração."},
+  {"codigo":"PR.MA-1","nome":"Manutenção e reparo de ativos","descricao":"Autorizar, controlar e registrar atividades de manutenção por pessoas e ferramentas permitidas, incluindo validação posterior quando cabível. Texto sintético de demonstração."},
+  {"codigo":"DE.AE-5","nome":"Limites de alerta de incidentes","descricao":"Definir e revisar critérios e limites para alertas de incidentes, alinhando-os a riscos, escalonamentos e indicadores de desempenho. Texto sintético de demonstração."},
+  {"codigo":"PR.AC-3","nome":"Gerenciamento de acesso remoto","descricao":"Autorizar, proteger, monitorar e revisar acessos remotos com autenticação, postura de dispositivos e privilégios apropriados. Texto sintético de demonstração."},
+  {"codigo":"ID.AM-4","nome":"Catálogo de sistemas de informação externos","descricao":"Catalogar e revisar serviços e sistemas externos usados pela organização, com responsáveis, criticidade, dados e requisitos de segurança. Texto sintético de demonstração."},
+  {"codigo":"RS.CO-5","nome":"Compartilhamento externo de informações","descricao":"Compartilhar informações sobre eventos de segurança com partes autorizadas usando critérios de classificação e rastreabilidade. Texto sintético de demonstração."},
+  {"codigo":"ID.AM-5","nome":"Priorização de recursos por criticidade","descricao":"Classificar e priorizar recursos conforme importância para o negócio e critérios documentados de criticidade e impacto. Texto sintético de demonstração."}
+]
+
+</script>
+<script>
+'use strict';
+
+// O HTML é autocontido: abrir via file:// oferece apenas uma prévia offline.
+// As rotas /api/* precisam ser acessadas pela mesma origem do FastAPI.
+const API_BASE = window.location.protocol.startsWith('http')
+  ? window.location.origin : null;
+const $ = id => document.getElementById(id);
+const state = {
+  controls: [], realControls: [], selectedImage: null, busy: false,
+  connected: false, modelConfigured: false, mode: 'real', demoCases: [], demoCase: null
+};
+
+function showError(message) {
+  $('erro-geral').textContent = message;
+  $('erro-geral').style.display = 'block';
+}
+function clearError() { $('erro-geral').style.display = 'none'; }
+function updateStep(number) {
+  document.querySelectorAll('.step').forEach((item, index) => {
+    item.classList.toggle('active', index + 1 === number);
+    item.classList.toggle('done', index + 1 < number);
+  });
+}
+function updateButton() {
+  // O botão fica disponível depois do upload, mesmo sem chave, para
+  // informar claramente o que falta em vez de parecer que não funciona.
+  $('btn-analisar').disabled = state.busy || !state.connected ||
+    (state.mode === 'demo' ? !state.demoCase : (!state.selectedImage || !$('controle_id').value));
+}
+function selectControl() {
+  const control = state.controls.find(item => item.codigo === $('controle_id').value);
+  if (control) {
+    $('politica').value = control.descricao;
+    $('hint-controle').textContent = '✓ ' + (control.nome || control.codigo);
+    $('hint-controle').className = 'hint ok';
+  } else {
+    $('politica').value = '';
+    $('hint-controle').textContent = 'Selecione um controle do catálogo.';
+    $('hint-controle').className = 'hint erro';
+  }
+  updateButton();
+}
+function renderControls(controls) {
+  state.controls = controls;
+  const select = $('controle_id');
+  select.replaceChildren();
+  if (!controls.length) {
+    select.add(new Option('Nenhum controle foi encontrado na fonte configurada', ''));
+    showError('A fonte de controles está vazia. Verifique /health e a configuração CONTROLS_SOURCE.');
+    updateButton();
+    return;
+  }
+  for (const control of controls) {
+    const option = new Option(control.nome ? `${control.codigo}: ${control.nome}` : control.codigo,
+                              control.codigo);
+    option.disabled = control.disponivel === false;
+    select.add(option);
+  }
+  select.value = controls.find(c => c.disponivel !== false)?.codigo || '';
+  selectControl();
+}
+
+
+async function loadDemoCases() {
+  if (!API_BASE) return;
+  try {
+    const response = await fetch(API_BASE + '/api/demo/cases', {cache: 'no-store'});
+    if (!response.ok) throw new Error('Cenários não disponíveis no servidor.');
+    const cases = await response.json();
+    if (!Array.isArray(cases) || cases.length !== 5) throw new Error('Pacote de cenários incompleto.');
+    state.demoCases = cases;
+    if (state.mode === 'demo') configureDemo();
+  } catch {
+    state.demoCases = [];
+    if (state.mode === 'demo') showError('Cenários não encontrados. Execute a versão completa do projeto pelo servidor.');
+  }
+}
+
+function clearRenderedResult() {
+  $('resultado-ia').style.display = 'none';
+  $('empty-state').style.display = 'flex';
+  $('analysis-time').textContent = state.mode === 'demo' ? 'Cenário fictício • Sem IA' : 'Aguardando análise';
+  $('json-bruto').style.display = 'none';
+  $('result-origin').hidden = true;
+  updateStep(1);
+}
+
+function configureDemo() {
+  const select = $('demo-case-select');
+  select.replaceChildren();
+  if (!state.demoCases.length) {
+    select.add(new Option('Cenários de demonstração não disponíveis', ''));
+    state.demoCase = null;
+    updateButton();
+    return;
+  }
+  for (const scenario of state.demoCases) {
+    select.add(new Option(scenario.titulo, scenario.id));
+  }
+  select.value = state.demoCase?.id && state.demoCases.some(c => c.id === state.demoCase.id)
+    ? state.demoCase.id : state.demoCases[0].id;
+  selectDemoCase();
+}
+
+function selectDemoCase() {
+  if (state.mode !== 'demo') return;
+  const c = state.demoCases.find(item => item.id === $('demo-case-select').value);
+  clearError();
+  clearRenderedResult();
+  clearImage();
+  state.demoCase = c || null;
+  if (!c) return;
+  renderControls([{...c.controle, disponivel: true}]);
+  $('controle_id').disabled = true;
+  const url = API_BASE + c.imagem_url;
+  $('preview-img').src = url;
+  $('preview-img').style.display = 'block';
+  $('file-thumb').src = url;
+  $('file-thumb').style.display = 'block';
+  $('file-name').textContent = c.id + '.png • imagem sintética incluída no projeto';
+  $('file-size').textContent = 'Arquivo ilustrativo fixo';
+  $('file-chip').style.display = 'flex';
+  $('remove-btn').hidden = true;
+  updateStep(2); updateButton();
+}
+
+function changeMode(mode) {
+  if (state.busy) return;
+  state.mode = mode;
+  clearError();
+  clearRenderedResult();
+  clearImage();
+  $('mode-real').setAttribute('aria-pressed', String(mode === 'real'));
+  $('mode-demo').setAttribute('aria-pressed', String(mode === 'demo'));
+  $('demo-alert').hidden = mode !== 'demo';
+  $('demo-field').hidden = mode !== 'demo';
+  $('input-imagem').disabled = mode === 'demo';
+  $('upload-area').classList.toggle('demo-locked', mode === 'demo');
+  $('upload-area').querySelector('.upload-main').textContent = mode === 'demo'
+    ? 'Evidência fictícia pré-carregada' : 'Arraste e solte a evidência aqui';
+  $('upload-area').querySelector('.upload-sub').textContent = mode === 'demo'
+    ? 'Para anexar uma imagem própria, volte para Análise real.'
+    : 'ou clique para selecionar um arquivo • use apenas dados fictícios ou autorizados';
+  $('btn-analisar').textContent = mode === 'demo' ? '▣ Exibir parecer ilustrativo' : '✦ Analisar Evidência';
+  $('empty-subtitle').textContent = mode === 'demo'
+    ? 'Escolha um cenário para exibir um parecer ilustrativo pré-cadastrado, sem chamada ao Gemini.'
+    : 'Selecione um controle, anexe uma imagem e inicie a análise. O resultado da IA deverá ser validado por uma pessoa responsável.';
+  $('confidence-label').textContent = mode === 'demo' ? 'Confiança da IA (não avaliada)' : 'Confiança qualitativa (IA)';
+  $('step-3-label').textContent = mode === 'demo' ? 'Consultar exemplo' : 'Análise pela IA';
+  $('right-title-label').textContent = mode === 'demo' ? 'Parecer ilustrativo' : 'Parecer da Análise';
+  $('req-hint').textContent = mode === 'demo'
+    ? 'Texto fictício incluído para apresentar a interface; não é uma política da sua empresa.'
+    : 'Texto oficial recuperado no servidor pelo ID; não pode ser alterado nesta tela.';
+  $('json-label').textContent = mode === 'demo'
+    ? '</> Ver JSON do resultado ilustrativo' : '</> Ver resposta estruturada da IA (JSON)';
+  $('controle_id').disabled = mode === 'demo';
+  $('remove-btn').hidden = mode === 'demo';
+  if (mode === 'demo') {
+    configureDemo();
+    if (!state.connected) showError('Inicie a API em http://127.0.0.1:8000/ para carregar os cenários locais. A chave Gemini não é necessária.');
+  } else if (state.realControls.length) {
+    renderControls(state.realControls);
+  }
+  updateButton();
+}
+
+async function runDemo() {
+  if (state.busy || !state.connected || !state.demoCase) return;
+  clearError();
+  state.busy = true; updateButton(); updateStep(3);
+  $('loading-label').textContent = 'Carregando parecer ilustrativo pré-cadastrado…';
+  $('loading').style.display = 'block';
+  $('resultado-ia').style.display = 'none';
+  $('empty-state').style.display = 'none';
+  try {
+    const response = await fetch(API_BASE + '/api/demo/avaliar', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({case_id: state.demoCase.id})
+    });
+    if (!response.ok) throw new Error('Cenário não disponível (HTTP ' + response.status + ').');
+    const result = await response.json();
+    if (result.origem_resultado !== 'DEMONSTRACAO' || result.id_analise !== state.demoCase.id)
+      throw new Error('Origem do resultado de demonstração não verificada.');
+    renderResult(result);
+    $('analysis-time').textContent = 'Exemplo ilustrativo • Sem inferência ao vivo';
+    updateStep(4);
+  } catch (error) {
+    showError(error.message || 'Não foi possível obter o cenário de demonstração.');
+    $('empty-state').style.display = 'flex'; updateStep(2);
+  } finally {
+    state.busy = false; updateButton(); $('loading').style.display = 'none';
+  }
+}
+
+function previewOffline(reason) {
+  const json = $('offline-catalog');
+  const examples = json ? JSON.parse(json.textContent) : [];
+  state.connected = false;
+  state.modelConfigured = false;
+  state.realControls = examples;
+  if (state.mode === 'real') renderControls(examples);
+  $('catalog-banner').hidden = false; // Exibir somente avisos de conexão / prévia sem API.
+  $('catalog-banner').className = 'catalog-banner catalog-warning';
+  $('catalog-banner').textContent =
+    `PRÉVIA SEM API — ${examples.length} controles fictícios para conhecer a tela. ` +
+    'A análise por IA está desativada. Para carregar sua planilha completa, ' +
+    'inicie a API e abra http://127.0.0.1:8000/. ' + reason +
+    ' O nome da coluna CONTROLES não causa este modo de prévia.';
+  $('retry-controls').hidden = !API_BASE;
+  $('server-link').hidden = Boolean(API_BASE);
+  $('btn-analisar').title = 'Para analisar, execute o FastAPI e configure sua chave Gemini.';
+  updateButton();
+}
+
+async function loadData() {
+  // file:// não consegue carregar /static/app.js nem fazer fetch same-origin para a API.
+  // O JS embutido e o catálogo fictício evitam a tela congelada em “Carregando…”.
+  if (!API_BASE) {
+    previewOffline('O arquivo HTML foi aberto diretamente, fora do servidor.');
+    return;
+  }
+  await loadDemoCases();
+  $('retry-controls').hidden = true;
+  $('server-link').hidden = true;
+  $('catalog-banner').hidden = true; // Não exibir status técnico ao conectar.
+  $('catalog-banner').textContent = '';
+  $('controle_id').replaceChildren(new Option('Conectando à API…', ''));
+  clearError();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const [response, info] = await Promise.all([
+      fetch(API_BASE + '/api/controles', {signal: controller.signal, cache: 'no-store'}),
+      fetch(API_BASE + '/api/metadata', {signal: controller.signal, cache: 'no-store'})
+    ]);
+    if (!response.ok || !info.ok) {
+      throw new Error(`A API retornou HTTP ${response.status}/${info.status}.`);
+    }
+    const controls = await response.json();
+    const metadata = await info.json();
+    if (!Array.isArray(controls)) throw new Error('O endpoint /api/controles não retornou uma lista.');
+    state.connected = true;
+    state.modelConfigured = Boolean(metadata.modelo_configurado);
+    state.realControls = controls;
+    if (state.mode === 'demo') configureDemo();
+    else renderControls(controls);
+    // A tela de uso normal não exibe detalhes técnicos de planilha/versão/chave.
+    // Mantemos o aviso somente quando a API devolve o catálogo fictício de demonstração.
+    $('catalog-banner').hidden = !metadata.exemplos_ficticios;
+    $('catalog-banner').className = metadata.exemplos_ficticios
+      ? 'catalog-banner catalog-warning' : 'catalog-banner';
+    $('catalog-banner').textContent = metadata.exemplos_ficticios
+      ? 'BASE DE DEMONSTRAÇÃO — Controles fictícios; configure a planilha para usar seus controles.'
+      : '';
+    $('btn-analisar').title = '';
+    updateButton();
+    if (state.mode === 'real' && state.selectedImage && !state.modelConfigured) {
+      showError('A evidência foi carregada, mas a análise por IA ainda não está configurada. '
+        + 'Preencha GOOGLE_API_KEY no arquivo .env da pasta do projeto e reinicie o servidor.');
+    }
+  } catch (error) {
+    previewOffline('Falha ao acessar a API: ' +
+      (error.name === 'AbortError' ? 'tempo de conexão excedido.' : error.message));
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function clearImage() {
+  $('input-imagem').value = '';
+  state.selectedImage = null;
+  $('preview-img').removeAttribute('src');
+  $('preview-img').style.display = 'none';
+  $('file-chip').style.display = 'none';
+  $('file-thumb').style.display = 'none';
+  updateStep(1);
+  updateButton();
+}
+
+function attachImage(file) {
+  if (state.mode === 'demo') return;
+  clearError();
+  if (!file) return;
+  if (!['image/png', 'image/jpeg'].includes(file.type)) {
+    clearImage(); showError('Formato inválido. Envie uma imagem PNG ou JPEG.'); return;
+  }
+  if (file.size > 8 * 1024 * 1024 || file.size === 0) {
+    clearImage(); showError('A imagem deve ter entre 1 byte e 8 MB.'); return;
+  }
+  state.selectedImage = file;
+  $('file-name').textContent = file.name;
+  $('file-size').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+  const reader = new FileReader();
+  reader.onload = () => {
+    $('preview-img').src = reader.result;
+    $('preview-img').style.display = 'block';
+    $('file-thumb').src = reader.result;
+    $('file-thumb').style.display = 'block';
+    $('file-chip').style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+  updateStep(2);
+  updateButton();
+  if (!state.connected) {
+    showError('A evidência foi carregada, mas esta tela está em modo de prévia. '
+      + 'Execute INICIAR_WINDOWS.bat e acesse http://127.0.0.1:8000/ para obter o parecer.');
+  } else if (!state.modelConfigured) {
+    showError('A evidência foi carregada, mas a análise por IA ainda não está configurada. '
+      + 'Preencha GOOGLE_API_KEY no arquivo .env da pasta do projeto e reinicie o servidor.');
+  }
+}
+function base64FromFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Erro na leitura do arquivo.'));
+    reader.readAsDataURL(file);
+  });
+}
+function populateList(id, items, empty) {
+  const target = $(id);
+  target.replaceChildren();
+  for (const item of items?.length ? items : [empty]) {
+    const li = document.createElement('li');
+    li.textContent = item;
+    target.append(li);
+  }
+}
+function renderResult(data) {
+  // Cada dimensão tem seu próprio julgamento e sua própria justificativa.
+  const dimensions = [
+    ['summary-design', data.desenho, 'reason-design'],
+    ['summary-implementation', data.implementacao, 'reason-implementation'],
+    ['summary-status', data.efetividade, 'reason-effectiveness'],
+  ];
+  for (const [valueId, evaluation, reasonId] of dimensions) {
+    $(valueId).textContent = evaluation?.classificacao || '—';
+    $(reasonId).textContent = evaluation?.justificativa || 'Não avaliado.';
+    const card = $(valueId).closest('.summary-card');
+    const category = evaluation?.classificacao || '';
+    const good = ['ADEQUADO','IMPLEMENTADO','EFETIVO'].includes(category);
+    const bad = ['INADEQUADO','INEFETIVO'].includes(category);
+    card.className = 'summary-card ' + (good ? 'green' : 'blue');
+    card.style.background = bad ? '#fff0f1' :
+      ['PARCIAL','INSUFICIENTE','NÃO DEMONSTRADO','NÃO CONCLUSIVO'].includes(category) ? '#fff8e8' : '';
+  }
+  const tier = data.maturidade?.nivel;
+  const validTier = Number.isInteger(tier) && tier >= 1 && tier <= 4;
+  $('summary-level').textContent = validTier ? `Tier ${tier} de 4` : 'NÃO DETERMINADO';
+  $('summary-level-name').textContent = validTier ? (data.nome_tier || '') : 'Evidência insuficiente';
+  $('reason-tier').textContent = data.maturidade?.justificativa || 'Sem fundamentação recebida.';
+  document.querySelectorAll('.maturity-node').forEach((item, ix) => {
+    item.classList.toggle('active', validTier && ix + 1 === tier);
+    item.classList.toggle('passed', validTier && ix + 1 < tier);
+  });
+  $('summary-confidence').textContent = data.confianca_ia || '—';
+  const isDemo = data.origem_resultado === 'DEMONSTRACAO';
+  $('review-alert').textContent = isDemo
+    ? '⚠ Exemplo fictício pré-cadastrado: sem inferência ao vivo nem validação por especialista.'
+    : data.revisao_humana_recomendada
+      ? '⚠ Revisão humana recomendada: confira as quatro dimensões e as limitações da evidência.'
+      : 'ⓘ Parecer preliminar: todas as dimensões exigem validação humana antes de decisão formal.';
+  $('txt-justificativa').textContent = data.justificativa_analise || 'Sem justificativa recebida.';
+  $('txt-parecer').textContent = data.sugestao_parecer || 'Sem parecer recebido.';
+  populateList('lista-achados', data.achados_observaveis, 'Nenhum achado observável retornado.');
+  populateList('lista-desvios', data.desvios_identificados, 'Nenhum desvio explícito identificado.');
+  populateList('lista-limitacoes', data.limitacoes_da_evidencia, 'Nenhuma limitação adicional apontada.');
+  $('json-bruto').textContent = JSON.stringify(data, null, 2);
+  $('json-bruto').style.display = 'none';
+  $('json-toggle').setAttribute('aria-expanded', 'false');
+  $('json-arrow').textContent = '⌄';
+  $('result-origin').hidden = !isDemo;
+  $('confidence-label').textContent = isDemo ? 'Confiança IA (não avaliada)' : 'Confiança qualitativa (IA)';
+  $('trace-info').textContent = isDemo
+    ? `Cenário: ${data.id_analise} · Resultado ilustrativo fixo · Validação especialista: ${data.validacao_especialista || 'PENDENTE'} · Gemini não foi chamado`
+    : `ID da análise: ${data.id_analise} · Modelo: ${data.modelo} · Prompt: ${data.versao_prompt} · Catálogo: ${data.versao_catalogo}`;
+  $('empty-state').style.display = 'none';
+  $('resultado-ia').style.display = 'block';
+  $('analysis-time').textContent = 'Concluído: ' + new Date().toLocaleString('pt-BR');
+}
+async function runAudit() {
+  if (state.mode === 'demo') { await runDemo(); return; }
+  if (state.busy || !state.selectedImage || !$('controle_id').value) return;
+  clearError();
+  if (!state.connected || !API_BASE) {
+    showError('Servidor não conectado. Inicie a API com INICIAR_WINDOWS.bat '
+      + 'e abra http://127.0.0.1:8000/ para realizar a análise.');
+    return;
+  }
+  if (!state.modelConfigured) {
+    showError('A análise por IA está desativada porque GOOGLE_API_KEY não foi configurada. '
+      + 'Abra o arquivo .env da pasta do projeto, preencha sua chave e reinicie o servidor.');
+    return;
+  }
+  state.busy = true; updateButton(); updateStep(3);
+  $('btn-analisar').textContent = 'Analisando…';
+  $('loading-label').textContent = 'Analisando evidência com Gemini…';
+  $('resultado-ia').style.display = 'none';
+  $('empty-state').style.display = 'none';
+  $('loading').style.display = 'block';
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 240000);
+  try {
+    const base64 = await base64FromFile(state.selectedImage);
+    // Não enviamos política editável: o backend recupera o requisito oficial pelo ID.
+    const response = await fetch(API_BASE + '/api/auditar', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      signal: controller.signal,
+      body: JSON.stringify({controle_id: $('controle_id').value, imagem_base64: base64})
+    });
+    let data;
+    try { data = await response.json(); }
+    catch { throw new Error('O servidor retornou uma resposta inesperada. '
+      + 'Verifique a janela do FastAPI e tente novamente.'); }
+    if (!response.ok) {
+      const detail = data.detail;
+      const message = typeof detail === 'string' ? detail :
+        detail && typeof detail.mensagem === 'string'
+          ? `${detail.mensagem} [Código: ${detail.codigo || 'SEM_CODIGO'}]` +
+            (Array.isArray(detail.campos) && detail.campos.length
+              ? ` Campos: ${detail.campos.join(', ')}.` : '')
+          : `Falha na análise (HTTP ${response.status}). Confira a janela do servidor.`;
+      throw new Error(message);
+    }
+    renderResult(data);
+    updateStep(4);
+  } catch (error) {
+    const message = error.name === 'AbortError'
+      ? 'A análise ultrapassou 240 segundos. Verifique a conexão e o status da API antes de tentar novamente.'
+      : error instanceof TypeError
+        ? 'Não foi possível falar com o servidor. Confira http://127.0.0.1:8000/health e a janela da API.'
+        : (error.message || 'Falha inesperada na auditoria.');
+    showError(message);
+    $('empty-state').style.display = 'flex';
+    updateStep(2);
+  } finally {
+    clearTimeout(timeout);
+    state.busy = false;
+    $('loading').style.display = 'none';
+    $('btn-analisar').textContent = '✦ Analisar Evidência';
+    updateButton();
+  }
+}
+
+$('mode-real').addEventListener('click', () => changeMode('real'));
+$('mode-demo').addEventListener('click', () => changeMode('demo'));
+$('demo-case-select').addEventListener('change', selectDemoCase);
+$('controle_id').addEventListener('change', selectControl);
+$('input-imagem').addEventListener('change', event => attachImage(event.target.files?.[0]));
+$('remove-btn').addEventListener('click', clearImage);
+$('btn-analisar').addEventListener('click', runAudit);
+$('json-toggle').addEventListener('click', () => {
+  const open = $('json-toggle').getAttribute('aria-expanded') === 'true';
+  $('json-toggle').setAttribute('aria-expanded', String(!open));
+  $('json-bruto').style.display = open ? 'none' : 'block';
+  $('json-arrow').textContent = open ? '⌄' : '⌃';
+});
+const uploadArea = $('upload-area');
+for (const eventName of ['dragenter', 'dragover']) uploadArea.addEventListener(eventName, event => {
+  event.preventDefault(); uploadArea.classList.add('dragging');
+});
+for (const eventName of ['dragleave', 'drop']) uploadArea.addEventListener(eventName, event => {
+  event.preventDefault(); uploadArea.classList.remove('dragging');
+});
+uploadArea.addEventListener('drop', event => {
+  if (state.mode === 'real') attachImage(event.dataTransfer?.files?.[0]);
+});
+$('about-btn').addEventListener('click', () => $('about-dialog').showModal());
+$('about-close').addEventListener('click', () => $('about-dialog').close());
+$('retry-controls').addEventListener('click', loadData);
+updateStep(1); loadData();
+
+</script>
+<!-- END GENERATED OFFLINE APP -->
+</body>
+</html>

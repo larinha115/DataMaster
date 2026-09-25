@@ -1,0 +1,10 @@
+.env
+.venv
+.git
+__pycache__
+.pytest_cache
+*.pyc
+data/privado/
+benchmark/resultados/
+*.log
+index_original_referencia.html

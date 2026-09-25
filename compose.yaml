@@ -1,0 +1,11 @@
+services:
+  cyber-risk:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    env_file:
+      - .env
+    volumes:
+      # Se você usar planilha privada, monte o arquivo apenas localmente.
+      - ./data:/app/data:ro
+    restart: unless-stopped
