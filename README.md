@@ -19,7 +19,7 @@ Aplicação multimodal para **apoiar**, e não substituir, a avaliação humana 
 | `tests/` | Testes offline de API, integridade, formato de imagem, catálogo e benchmark. |
 | `docs/` | Documentação de arquitetura, critérios, ética, decisões e roteiro de apresentação. |
 
-**Importante:** a planilha corporativa enviada para construir o projeto **não está incluída** neste pacote para evitar distribuição acidental de dados internos. No ambiente autorizado, copie o arquivo original para `data/privado/SBK_Framework_NIST.xlsx` e configure `CONTROLS_SOURCE` no `.env`. Por padrão, o aplicativo usa o catálogo fictício e o identifica claramente na tela. Os dois controles `RC.CO-1` e `RC.CO-2` da planilha fornecida têm requisito marcado `NA`: o sistema os exibe como indisponíveis, sem inventar uma política.
+**Importante:** No ambiente autorizado, copie o arquivo original para `data/privado/SBK_Framework_NIST.xlsx` e configure `CONTROLS_SOURCE` no `.env`. Por padrão, o aplicativo usa o catálogo fictício e o identifica claramente na tela. Os dois controles `RC.CO-1` e `RC.CO-2` da planilha fornecida têm requisito marcado `NA`: o sistema os exibe como indisponíveis, sem inventar uma política.
 
 ## 2. Pré-requisitos
 
